@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               RadioMobile
-version:            0.01
+version:            0.02
 abstract:           A Perl interface to Radio Mobile .net file
 author:
     - Emiliano Bruni <info@ebruni.it>
@@ -12,6 +12,7 @@ build_requires:
     ExtUtils::MakeMaker:  0
 requires:
     Array::AsObject:     0
+    Class::Container:    0
     Class::MethodMaker:  0
     File::Binary:        0
 no_index:
