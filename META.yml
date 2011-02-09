@@ -1,25 +1,18 @@
 --- #YAML:1.0
-name:               RadioMobile
-version:            0.02
-abstract:           A Perl interface to Radio Mobile .net file
-author:
+name:                RadioMobile
+version:             0.03
+abstract:            A Perl interface to Radio Mobile .net file
+license:             gpl
+author:              
     - Emiliano Bruni <info@ebruni.it>
-license:            unknown
-distribution_type:  module
-configure_requires:
-    ExtUtils::MakeMaker:  0
-build_requires:
-    ExtUtils::MakeMaker:  0
-requires:
-    Array::AsObject:     0
-    Class::Container:    0
-    Class::MethodMaker:  0
-    File::Binary:        0
-no_index:
-    directory:
-        - t
-        - inc
-generated_by:       ExtUtils::MakeMaker version 6.56
+generated_by:        ExtUtils::MakeMaker version 6.42
+distribution_type:   module
+requires:     
+    Array::AsObject:               0
+    Class::Container:              0
+    Class::MethodMaker:            0
+    File::Binary:                  0
+    IO::Scalar:                    0
 meta-spec:
-    url:      http://module-build.sourceforge.net/META-spec-v1.4.html
-    version:  1.4
+    url:     http://module-build.sourceforge.net/META-spec-v1.3.html
+    version: 1.3
