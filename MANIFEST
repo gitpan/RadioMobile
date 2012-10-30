@@ -4,11 +4,12 @@ MANIFEST
 README
 docs/radiomobile_object_model.pdf
 t/net1.net
-t/RadioMobile.t
 t/Matrix.t
 t/Nets.t
 t/Net.t
-t/RadioMobile.t
+t/10_parse.t
+t/20_write.t
+t/30_newnet.t
 t/System.t
 lib/RadioMobile.pm
 lib/RadioMobile/Header.pm
@@ -38,5 +39,6 @@ lib/RadioMobile/UnitsSystemParser.pm
 lib/RadioMobile/UnitsHeightParser.pm
 lib/RadioMobile/UnitsAzimutDirectionParser.pm
 lib/RadioMobile/Utils/Matrix.pm
-lib/RadioMobile/UnitUnknown1Parser.pm
-META.yml                                 Module meta-data (added by MakeMaker)
+lib/RadioMobile/UnitDescriptionParser.pm
+META.yml                                 Module YAML meta-data (added by MakeMaker)
+META.json                                Module JSON meta-data (added by MakeMaker)

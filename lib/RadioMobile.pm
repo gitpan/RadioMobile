@@ -2,7 +2,6 @@
 
 	use 5.008000;
 	use strict;
-	use warnings;
 
 	use Class::Container;
 	use Params::Validate qw(:types);
@@ -10,11 +9,17 @@
 
 	use File::Binary;
 	use IO::Scalar;
+	sub IO::Scalar::write {
+		# rewrote write to work with File::Binary
+		my $self = $_[0];
+		$self->print($_[1]);
+	}
+	use warnings;
 
 	use RadioMobile::Header;
 	use RadioMobile::Units;
 	use RadioMobile::UnitIconParser;
-	use RadioMobile::UnitUnknown1Parser;
+	use RadioMobile::UnitDescriptionParser;
 	use RadioMobile::UnitsSystemParser;
 	use RadioMobile::UnitsHeightParser;
 	use RadioMobile::UnitsAzimutDirectionParser;
@@ -55,7 +60,7 @@
 	use Class::MethodMaker [ scalar => [qw/filepath debug header units 
 		bfile file systems nets netsunits config cov/] ];
 
-	our $VERSION	= '0.06';
+	our $VERSION	= '0.10';
 
 	sub new {
 		my $proto 	= shift;
@@ -204,11 +209,11 @@
 		$s->_cb($cb,11700,"Reading Azimut/Direction for Units");
 
 		# read unknown units property
-		$s->_cb($cb,11800,"Parsing Unknown Unit structure");
-		my $uu = new RadioMobile::UnitUnknown1Parser(parent => $s);
+		$s->_cb($cb,11800,"Parsing Description Unit structure");
+		my $uu = new RadioMobile::UnitDescriptionParser(parent => $s);
 		$uu->parse;
-		print "UNITS after unknown1 structure: " .  $s->units->dump if $s->debug;
-		$s->_cb($cb,11800,"Parsing Unknown Unit structure");
+		print "UNITS after description structure: " .  $s->units->dump if $s->debug;
+		$s->_cb($cb,11800,"Parsing Description Unit structure");
 
 		# read elevation antenas
 		$s->_cb($cb,11900,"Reading Elevation for Units");
@@ -234,6 +239,54 @@
 
 		$s->bfile->close;
 	}
+
+sub write {
+	my $s			= shift;
+	# open binary .net file
+	my $data ='';
+	my $io			= new IO::Scalar(\$data);
+    $s->{bfile} 	= new File::Binary($io);
+    #$s->{bfile} 	= new File::Binary(">pippo.net");
+	
+	$s->header->write;
+	$s->units->write;
+	$s->systems->write;
+	$s->netsunits->write;
+	my $ns = new RadioMobile::UnitsSystemParser( parent => $s );
+	$ns->write;
+	$s->nets->write;
+	$s->cov->write($s->bfile);
+	$s->config->write_mapfilepath;
+	$s->config->pictures->write;
+	my $hp = new RadioMobile::UnitsHeightParser(
+							bfile 		=> $s->bfile,
+							header		=> $s->header,
+							netsunits 	=> $s->netsunits
+						);
+	$hp->write;
+	my $up = new RadioMobile::UnitIconParser(parent => $s);
+	$up->write;
+	my $cp = new RadioMobile::SystemCableLossParser(parent => $s);
+	$cp->write;
+	$s->config->write_stylenetworks;
+	my $un = new RadioMobile::NetUnknown1Parser(parent => $s);
+	$un->write;
+	my $ap = new RadioMobile::SystemAntennaParser(parent => $s);
+	$ap->write;
+	my $ad = new RadioMobile::UnitsAzimutDirectionParser(parent => $s);
+	$ad->write;
+	my $uu = new RadioMobile::UnitDescriptionParser(parent => $s);
+	$uu->write;
+	my $ep = new RadioMobile::UnitsElevationParser(parent => $s);
+	$ep->write;
+	$s->bfile->put_bytes(pack('f',$s->header->version));
+	$s->bfile->put_bytes(pack('s',0));
+	$s->config->write_landheight;
+	
+	$s->bfile->close;
+
+	return $data;
+}
 
 sub _cb {
 	my $s		= shift;

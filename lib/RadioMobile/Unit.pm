@@ -9,7 +9,7 @@ use base qw(Class::Container);
 
 use File::Binary;
 
-our $VERSION    = '0.01';
+our $VERSION    = '0.10';
 
 # UNIT STRUCTURE - Len 44 bytes
 # LON               ([f] single-precision float - VB Single type - 4 bytes),
@@ -23,16 +23,15 @@ our $VERSION    = '0.01';
 use constant LEN	=> 44;
 use constant PACK	=> 'fffssllA20';
 use constant ITEMS	=> qw/lon lat h enabled transparent forecolor 
-							backcolor name icon unknown1/;
+							backcolor name icon description/;
+use constant DEFAULTS => (0,0,0,1,0,16777215,0,'',1,'');
 
-__PACKAGE__->valid_params ( map {$_ => {type => SCALAR, default => 1}} (ITEMS));
-use Class::MethodMaker [scalar => [ITEMS]];
+__PACKAGE__->valid_params ( map {(ITEMS)[$_] =>{type=>SCALAR, default=> (DEFAULTS)[$_]}} (0..(ITEMS)-1));
+use Class::MethodMaker [scalar => [ITEMS,'idx']];
 
 sub new {
 	my $package = shift;
 	my $s = $package->SUPER::new(@_);
-	$s->icon(0);
-	$s->unknown1(undef);
 	return $s;
 }
 
@@ -40,7 +39,14 @@ sub parse {
 	my $s	 	= shift;
 	my $f	  	= shift;
 	my @struct 	= unpack(PACK,$f->get_bytes(LEN));
-	map {$s->{(ITEMS)[$_]} = $struct[$_]} (0..(ITEMS)-1);
+	# meno2 perche' description non sta qui
+	map {$s->{(ITEMS)[$_]} = $struct[$_]} (0..(ITEMS)-2);
+}
+
+sub write {
+	my $s	 	= shift;
+	my $f	  	= shift;
+	$f->put_bytes(pack(PACK, map ($s->{(ITEMS)[$_]},(0..(ITEMS)-1))));
 }
 
 sub dump {
